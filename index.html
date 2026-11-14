@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Packet Compressor</title>
+<style>
+body{font-family:Arial;background:#0f172a;color:white;padding:20px}
+h1{color:#22c55e;text-align:center}
+textarea{width:100%;height:120px;border-radius:10px;padding:10px;font-size:16px}
+button{width:100%;padding:14px;margin-top:10px;border:0;border-radius:10px;font-size:17px;font-weight:bold}
+.compress{background:#22c55e;color:white}
+.decompress{background:#3b82f6;color:white}
+.box{background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;word-break:break-all}
+small{color:#94a3b8}
+</style>
+</head>
+<body>
+<h1>📦 Data Packet Compressor</h1>
+<p style="text-align:center">Text ni compress chesi packet size thagginchu</p>
+
+<textarea id="input" placeholder="Ikkada nee text / data type chey mawa..."></textarea>
+
+<button class="compress" onclick="compress()">COMPRESS 📦</button>
+<button class="decompress" onclick="decompress()">DECOMPRESS 🔓</button>
+
+<div class="box">
+<b>Original Size:</b> <span id="o">0</span> bytes<br>
+<b>Compressed Size:</b> <span id="c">0</span> bytes<br>
+<b>Saved:</b> <span id="s">0%</span>
+</div>
+
+<div class="box">
+<b>Result:</b><br><br>
+<span id="output">Ikkada result vasthundi...</span>
+</div>
+
+<script>
+let compressedData = "";
+async function compress(){
+  let text = document.getElementById("input").value;
+  if(!text){ alert("Mundu text type chey mawa!"); return; }
+  let stream = new Blob([text]).stream().pipeThrough(new CompressionStream("gzip"));
+  let buf = await new Response(stream).arrayBuffer();
+  let bytes = new Uint8Array(buf);
+  let binary = "";
+  bytes.forEach(b=> binary += String.fromCharCode(b));
+  compressedData = btoa(binary);
+  document.getElementById("output").innerText = compressedData;
+  document.getElementById("o").innerText = new Blob([text]).size;
+  document.getElementById("c").innerText = bytes.length;
+  document.getElementById("s").innerText = Math.max(0, Math.round((1 - bytes.length / new Blob([text]).size
